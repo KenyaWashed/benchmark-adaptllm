@@ -15,6 +15,9 @@ import glob
 import logging
 from transformers import StoppingCriteriaList, StoppingCriteria
 
+
+from omegaconf import OmegaConf
+
 logger = logging.getLogger(__name__)
 
 class StopStrCriteria(StoppingCriteria):
@@ -131,7 +134,8 @@ class Inferencer:
                     few_shot_res = self.completion_losses(
                         input_ids=entry.input_ids,
                         input_atten_mask=entry.input_atten_mask,
-                        labels=[x["label"] for x in list(metadata)],
+                        #labels=[x["label"] for x in metadata],
+                        metadata = OmegaConf.to_container(metadata, resolve=True)
                     )
                 else:
                     few_shot_res = self.choice_losses(
