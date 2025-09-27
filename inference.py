@@ -131,7 +131,7 @@ class Inferencer:
                     few_shot_res = self.completion_losses(
                         input_ids=entry.input_ids,
                         input_atten_mask=entry.input_atten_mask,
-                        labels=[x["label"] for x in metadata],
+                        labels=[x["label"] for x in list(metadata)],
                     )
                 else:
                     few_shot_res = self.choice_losses(
