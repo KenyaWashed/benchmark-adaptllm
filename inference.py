@@ -130,43 +130,19 @@ class Inferencer:
                     break  # early stop for debug
                 metadata = entry.pop("metadata")
                 
-                # === unwrap metadata ===
-                # debug prints
-                print("DEBUG metadata type:", type(metadata))
-                print("DEBUG metadata repr:", repr(metadata))
-                # Try convert
-                try:
-                    # If metadata has method to_list or _list
-                    if hasattr(metadata, "to_list"):
-                        metadata_list = metadata.to_list()
-                    elif hasattr(metadata, "_list"):
-                        metadata_list = metadata._list()
-                    else:
-                        # fallback: try OmegaConf.to_container
-                        from omegaconf import OmegaConf
-                        metadata_list = OmegaConf.to_container(metadata, resolve=True)
-                except Exception as e:
-                    print("Unwrap metadata failed:", e)
-                    # last resort: wrap in list
-                    metadata_list = [metadata]
+                # unwrap ListWrapper -> list
+                if hasattr(metadata, "data"):
+                    metadata = metadata.data
+                else:
+                    metadata = list(metadata)  # fallback nếu __iter__ có define
 
-                # Now metadata_list should be Python list of dicts (or similar)
-                # If elements are not dict, convert
-                processed_metadata = []
-                for x in metadata_list:
-                    if not isinstance(x, dict):
-                        try:
-                            x = dict(x)
-                        except Exception:
-                            pass
-                    processed_metadata.append(x)
-
-
+                print(type(metadata), metadata)
+                
                 if self.dataset_reader.task.class_num == 1:
                     few_shot_res = self.completion_losses(
                         input_ids=entry.input_ids,
                         input_atten_mask=entry.input_atten_mask,
-                        labels=[x["label"] for x in processed_metadata],
+                        labels=[x["label"] for x in metadata],
                     )
                 else:
                     few_shot_res = self.choice_losses(
