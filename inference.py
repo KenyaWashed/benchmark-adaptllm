@@ -16,7 +16,6 @@ import logging
 from transformers import StoppingCriteriaList, StoppingCriteria
 
 
-from omegaconf import OmegaConf
 
 logger = logging.getLogger(__name__)
 
@@ -130,12 +129,12 @@ class Inferencer:
                 if "stop" in self.cfg and i == self.cfg.stop:
                     break  # early stop for debug
                 metadata = entry.pop("metadata")
+                metadata = list(metadata)
                 if self.dataset_reader.task.class_num == 1:
                     few_shot_res = self.completion_losses(
                         input_ids=entry.input_ids,
                         input_atten_mask=entry.input_atten_mask,
-                        #labels=[x["label"] for x in metadata],
-                        metadata = OmegaConf.to_container(metadata, resolve=True)
+                        labels=[x["label"] for x in metadata],
                     )
                 else:
                     few_shot_res = self.choice_losses(
