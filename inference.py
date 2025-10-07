@@ -136,7 +136,7 @@ class Inferencer:
                 else:
                     metadata = list(metadata)  # fallback nếu __iter__ có define
 
-                print(type(metadata), metadata)
+                # print(type(metadata), metadata)
                 
                 if self.dataset_reader.task.class_num == 1:
                     few_shot_res = self.completion_losses(
